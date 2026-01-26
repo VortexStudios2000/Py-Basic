@@ -1,7 +1,10 @@
 blacklist: list[str] = ["from libTIcompatibility import *\n","\n"]
 
-names:list[str] =     ["ClrHome()","Output(","+",")","*",":","Wait("]
-commands:list[str] =  ["E1","E0","2B","29","2A","3A","EF96"]
+ASCII_chars: list[str] =    [",",'"'," ",".","-"]
+TI_chars: list[str] =       ["+","*",")",":","q"]
+
+names:list[str] =     ["ClrHome()","Output(","+",")","*",":","Wait(","q"]
+commands:list[str] =  ["E1","E0","2B","29","2A","3A","EF96","71"]
 
 def to_hex_2byte_multiple(value:str|int|bytes|bytearray) -> str:
     if isinstance(value, int):
@@ -52,10 +55,9 @@ def parse_file(lines:list[str]):
             replace_list:list[str] = list(next_item[0:len(next_item)-1])
             for i in range(len(replace_list)):
                 char: str = replace_list[i]
-                if char == ",": replace_list[i] = "+"
-                if char == '"': replace_list[i] = "*"
-                if char == " ": replace_list[i] = ")"
-                if char == ".": replace_list[i] = ":"
+                if char in ASCII_chars:
+                    replace_list[i] = TI_chars[ASCII_chars.index(char)]
+                
             current_item = ""
             for item in replace_list:
                 current_item += item
@@ -80,17 +82,19 @@ def parse_file(lines:list[str]):
                 else:
                     new_arguments.append(arguments[i])
             arguments = new_arguments
+            #print(arguments)
 
             compiled += lookup_function(command)
             for arg in arguments:
                 if is_complex(arg):
                     compiled += to_hex_2byte_multiple(arg)
+                    #print(bytes.fromhex(to_hex_2byte_multiple(arg)).decode("ASCII"))
                 else:
                     compiled += lookup_function(arg)
+                    #print(bytes.fromhex(lookup_function(arg)).decode("ASCII"))
 
         compiled += "3F"
     compiled = compiled[0:len(compiled)-2]
-
     return compiled
 
 def compile(filename:str) -> str:
