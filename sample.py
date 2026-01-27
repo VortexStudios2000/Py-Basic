@@ -26,6 +26,7 @@ w:float=0
 x:float=0
 y:float=0
 z:float=0
+θ:float=0
 
 # __start__ #
 
@@ -34,7 +35,6 @@ Output(5,7,"STARTING UP...")
 Wait(1)
 ClrHome()
 Output(5,8,"PY-BASIC 1.0")
-Output(6,3,"PRESS CLEAR TO CONTINUE")
-a=Input("NUM = ")
-b=Sqrt(a*10/25+3-1)
-Disp(b)
+a = Input("NUM = ")
+b = Sqrt(a*10/25+3-1)
+print(b)
