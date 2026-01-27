@@ -1,8 +1,8 @@
 commands = ["linebreak","ClrHome","Wait","Output(","Input","Disp","√("]
 hex_commands = ["3F","E1","EF 96","E0","DC","DE","BC"]
 
-chars =     [",",'"'," ",".",":","-","+","*","/","=","(",")","→"]
-hex_chars = ["2B","2A","29","3A","3E","71","70","82","83","6A","10","11","04"]
+chars =     [",",'"'," ",".",":","-","+","*","/","=","(",")","→","²"]
+hex_chars = ["2B","2A","29","3A","3E","71","70","82","83","6A","10","11","04","0D"]
 
 def to_hex_2byte_multiple(value:str|int|bytes|bytearray) -> str:
     # for standard conversion to hex
@@ -74,6 +74,8 @@ def python_to_basic(program:list[str]) -> list[str]:
         line = basic[i]
         if "Sqrt(" in line:
             basic[i] = basic[i].replace("Sqrt(","√(")
+        if "**2" in line:
+            basic[i] = basic[i].replace("**2","²")
 
     return basic
 
