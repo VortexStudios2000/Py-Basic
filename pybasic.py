@@ -1,19 +1,17 @@
-commands = ["linebreak","ClrHome","Wait","Output(","Input","Disp","√("]
-hex_commands = ["3F","E1","EF 96","E0","DC","DE","BC"]
+commands = ["linebreak","ClrHome","Wait","Output(","Input","Disp","√(","Lbl","Goto","Menu(","Pause","Stop","DelVar"]
+hex_commands = ["3F","E1","EF 96","E0","DC","DE","BC","D6","D7","E6","D8","D9","BB54"]
 
-chars =     [",",'"'," ",".",":","-","+","*","/","=","(",")","→","²"]
-hex_chars = ["2B","2A","29","3A","3E","71","70","82","83","6A","10","11","04","0D"]
+chars =     [",",'"'," ",".",":","-","+","*","/","=","(",")","→","²","^","Π"]
+hex_chars = ["2B","2A","29","3A","3E","71","70","82","83","6A","10","11","04","0D","F0","AC"]
 
-def to_hex_2byte_multiple(value) -> str:
+def to_hex_2byte_multiple(value:int|str) -> str:
     # for standard conversion to hex
     if isinstance(value, int):
         hex_str = f"{value:X}"
-    elif isinstance(value, str):
+    elif isinstance(value, str): #type:ignore
         hex_str:str = ""
         for char in value:
             hex_str += char.encode().hex().upper()
-    elif isinstance(value, (bytes, bytearray)):
-        hex_str = value.hex().upper()
     else:
         raise TypeError("Unsupported type")
 
@@ -23,7 +21,7 @@ def to_hex_2byte_multiple(value) -> str:
 def read_program(name:str) -> list[str]:
     # filters out unecessary header code for python file
     program:list[str] = []
-    try:
+    try: # read file
         with open(name, 'r', encoding='utf-8') as f:
             lines_list: list[str] = f.readlines()
     except FileNotFoundError:
@@ -32,18 +30,31 @@ def read_program(name:str) -> list[str]:
     except Exception as e:
         print(f"An error occurred: {e}")
         return []
+    
+    # get init section
+    started = False
+    for line in lines_list:
+        if not started and line == "# __init__ #\n":
+            started = True
+            continue
+        if started and line[0] != "#" and line.strip() != "":
+            program.append(line.strip())
+
+    # get actual code
     started = False
     for line in lines_list:
         if not started and line == "# __start__ #\n":
             started = True
             continue
+        if  started and line == "# __init__ #\n":
+            break
         if started and line[0] != "#" and line.strip() != "":
             program.append(line.strip())
     return program
 
 def python_to_basic(program:list[str]) -> list[str]:
     # reformat python into TI-Basic
-    # after this stage, *almost all code should be copy-pasteable into TI-Connect CE program editor
+    # after this stage, almost all code should be copy-pasteable into TI-Connect CE program editor
     basic:list[str] = []
     for line in program:
         if line == "ClrHome()":
@@ -57,6 +68,8 @@ def python_to_basic(program:list[str]) -> list[str]:
                 basic.append(f"Input {line[12:len(line)-2]},{line[0].upper()}")
             elif line[2:14] == "float(input(":
                 basic.append(f"Input {line[14:len(line)-2]},{line[0].upper()}")
+            elif line[2] == "0":
+                basic.append(f"DelVar {line[0].upper()}")
             else:
                 basic.append(f"{line[2:len(line)]}→{line[0].upper()}")
         elif line[2] == "=":
@@ -66,6 +79,8 @@ def python_to_basic(program:list[str]) -> list[str]:
                 basic.append(f"Input {line[14:len(line)-2]},{line[0].upper()}")
             elif line[4:16] == "float(input(":
                 basic.append(f"Input {line[16:len(line)-2]},{line[0].upper()}")
+            elif line[4] == "0":
+                basic.append(f"DelVar {line[0].upper()}")
             else:
                 basic.append(f"{line[4:len(line)]}→{line[0].upper()}")
         elif line[0:5] == "Disp(":
@@ -74,16 +89,39 @@ def python_to_basic(program:list[str]) -> list[str]:
             basic.append(f"Output({line[7:len(line)-1]}")
         elif line[0:6] == "print(":
             basic.append(f"Disp {line[6:len(line)-1]}")
+        elif line[2:4] == "()":
+            basic.append(f"Goto {line[0:2]}")
+        elif line[0:3] == "def" and line[6:8] == "()":
+            basic.append(f"Lbl {line[4:6]}")
+        elif line[0:6] == "Pause(":
+            basic.append(f"Pause {line[6:len(line)-1]}")
+        elif line[0:6] == "Stop()":
+            basic.append(f"Stop")
+        elif line[0:5] == "Menu(":
+            # parse line
+            restline = line[5:len(line)-1]
+            inputList = restline.replace("[","").replace("]","").split(",")
+            finalList = [inputList.pop(0)]
+            for i in range(int(len(inputList)/2)):
+                finalList.append(inputList[i])
+                finalList.append(inputList[i+int(len(inputList)/2)])
+            final = "Menu("
+            for item in finalList:
+                final += item + ","
+            final = final[0:len(final)-1]
+            basic.append(final)
         else:
-            basic.append(line)
+            basic.append("Not Convertable: " + line)
     
     # replacements
     for i in range(len(basic)):
         line = basic[i]
+        if "**" in line:
+            basic[i] = basic[i].replace("**","^")
         if "Sqrt(" in line:
             basic[i] = basic[i].replace("Sqrt(","√(")
-        if "**2" in line:
-            basic[i] = basic[i].replace("**2","²")
+        if "PI" in line:
+            basic[i] = basic[i].replace("PI","π")
 
     return basic
 

@@ -1,5 +1,6 @@
 from libTIcompatibility import *
 
+PI = math.pi
 a:float=0
 b:float=0
 c:float=0
@@ -30,12 +31,49 @@ z:float=0
 
 # __start__ #
 
-ClrHome()
-Output(5,7,"STARTING UP...")
-Wait(1)
-ClrHome()
-Output(5,8,"PY-BASIC 1.0")
-a = Input("leg1 = ")
-b = Input("leg2 = ")
-c=Sqrt(a**2+b**2)
-print("Hypotenuse = ",c)
+def A0():
+    ClrHome()
+    Output(5,7,"STARTING UP...")
+    Wait(1)
+    ClrHome()
+    Menu("Choose",["Pythagorean Theorem","Cone Volume","Sphere Volume"],[A1,A2,A3])
+
+def A1():
+    ClrHome()
+    print("Pythagorean Theorem")
+    a = Input("leg1 = ")
+    b = Input("leg2 = ")
+    c=(a**2+b**2)**.5
+    a=0
+    b = 0
+    print("Hypotenuse = ",c)
+    Pause("Press enter to continue...")
+    Stop()
+
+def A2():
+    ClrHome()
+    print("Volume of a Cone")
+    print("V=1/3*πhr^2")
+    r = Input("r = ")
+    h = Input("h = ")
+    v = 1/3*PI*h*r**2
+    r=0
+    h=0
+    print("Volume = ",v)
+    Pause("Press enter to continue...")
+    Stop()
+
+def A3():
+    ClrHome()
+    print("Volume of a Sphere")
+    print("V=4/3*πr^3")
+    r = Input("r = ")
+    v = 4/3*PI*r**3
+    r=0
+    print("Volume = ",v)
+    Pause("Press enter to continue...")
+    Stop()
+
+# __init__ #
+
+A0()
