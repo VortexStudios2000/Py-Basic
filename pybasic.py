@@ -4,7 +4,7 @@ hex_commands = ["3F","E1","EF 96","E0","DC","DE","BC"]
 chars =     [",",'"'," ",".",":","-","+","*","/","=","(",")","→","²"]
 hex_chars = ["2B","2A","29","3A","3E","71","70","82","83","6A","10","11","04","0D"]
 
-def to_hex_2byte_multiple(value:str|int|bytes|bytearray) -> str:
+def to_hex_2byte_multiple(value) -> str:
     # for standard conversion to hex
     if isinstance(value, int):
         hex_str = f"{value:X}"
@@ -43,7 +43,7 @@ def read_program(name:str) -> list[str]:
 
 def python_to_basic(program:list[str]) -> list[str]:
     # reformat python into TI-Basic
-    # after this stage, all code should be copy-pasteable into TI-Connect CE program editor
+    # after this stage, *almost all code should be copy-pasteable into TI-Connect CE program editor
     basic:list[str] = []
     for line in program:
         if line == "ClrHome()":
@@ -53,11 +53,19 @@ def python_to_basic(program:list[str]) -> list[str]:
         elif line[1] == "=":
             if line[2:8] == "Input(":
                 basic.append(f"Input {line[8:len(line)-1]},{line[0].upper()}")
+            elif line[2:12] == "int(input(":
+                basic.append(f"Input {line[12:len(line)-2]},{line[0].upper()}")
+            elif line[2:14] == "float(input(":
+                basic.append(f"Input {line[14:len(line)-2]},{line[0].upper()}")
             else:
                 basic.append(f"{line[2:len(line)]}→{line[0].upper()}")
         elif line[2] == "=":
             if line[4:10] == "Input(":
                 basic.append(f"Input {line[10:len(line)-1]},{line[0].upper()}")
+            elif line[4:14] == "int(input(":
+                basic.append(f"Input {line[14:len(line)-2]},{line[0].upper()}")
+            elif line[4:16] == "float(input(":
+                basic.append(f"Input {line[16:len(line)-2]},{line[0].upper()}")
             else:
                 basic.append(f"{line[4:len(line)]}→{line[0].upper()}")
         elif line[0:5] == "Disp(":
@@ -149,11 +157,16 @@ def compile(filename:str):
 if __name__ == "__main__":
     # sample run
     target_name = "sample.py"
-    binary:str = compile(target_name)
-    display:str = ""
+    python_program = read_program(target_name)
+    basic_program = python_to_basic(python_program)
+    binary = basic_to_binary(basic_program)
+    display_binary:str = ""
     for i in range(int(len(binary)/2)):
         byte = binary[i*2] + binary[i*2+1]
-        display += byte + " "
+        display_binary += byte + " "
         if byte == "3F":
-            display += "\n"
-    print(display)
+            display_binary += "\n"
+    display_basic:str = ""
+    for item in basic_program:
+        display_basic += item + "\n"
+    print(display_basic)
