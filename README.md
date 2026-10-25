@@ -1,4 +1,4 @@
-# Py-Basic
+# PY-BASIC
 Py-Basic is a transpiler that converts simple Python code to TI-Basic (the programming language built into the TI-84 Plus CE Graphing Calculator). I may add additional compatibility later but the TI-84 Plus CE is the current target.
 
 The name is a combination of the name "Python" and "TI-Basic" put together. It sounds cool enough to me and it conveniently happens to be 8 characters long (the max program name size on TI Graphing Calculators).
@@ -8,6 +8,8 @@ I haven't led any coding projects before so this is all very new to me haha.
 So far, there isn't much functionality and it will probably take a while to implement enough for this to actually be useful.
 
 Note: Some parts of the program may refer to compilation, but in reality, Py-Basic is more like a transpiler. The biggest part is converting Python to TI-BASIC code. Converting that to a binary that can be uploaded to the TI-84 is actually the easiest part.
+
+Legal Note: NOT affiliated with Texas Instruments. No violation of trademarks or copyright intended. Please do not hunt me down.
 
 # Writing & Testing Programs
 The TI-84 runs programs from top to bottom, has a limited list of variables (a-z and θ), and many functions that don't have a direct equivalent in Python.
