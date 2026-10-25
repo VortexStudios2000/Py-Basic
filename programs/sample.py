@@ -1,6 +1,5 @@
 from libTIcompatibility import *
 
-PI = math.pi
 a:float=0
 b:float=0
 c:float=0
@@ -41,7 +40,7 @@ def A0():
 def A1():
     ClrHome()
     print("Pythagorean Theorem")
-    a = Input("leg1 = ")
+    a = float(input("leg1 = "))
     b = Input("leg2 = ")
     c=(a**2+b**2)**.5
     a=0

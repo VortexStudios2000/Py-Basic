@@ -5,6 +5,8 @@ import math
 from typing import Callable, List
 import sys
 
+PI = float(math.pi)
+
 def ClrHome():
     subprocess.call('cls' if os.name=='nt' else 'clear', shell=True)
 
